@@ -14,15 +14,6 @@ if __name__ == "__main__":
     model.to(device)
 
     tokenizer.padding_side = "left"
-    if LANGUAGE == "chinese":
-        #中文模型的设置
-        model.config.eos_token_id = None
-        tokenizer.pad_token = tokenizer.cls_token
-
-    if LANGUAGE == "english":
-        #英文模型的设置
-        tokenizer.pad_token = tokenizer.eos_token
-
     #支持batch解码
     prompt_lst = ["这是一部非常好看的电影。讲的是","内蒙古大草原上"]
 

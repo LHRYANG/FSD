@@ -12,6 +12,11 @@ def fsd_decoding(model, tokenizer, prompt_lst, k, alpha, model_name_or_path,lang
            alpha: regulates importance of model confidence and degeneration penalty
            end_of_sequence_token_id: the token id that denotes the end of generation
         '''
+    if tokenizer.pad_token_id == None:
+        tokenizer.pad_token_id = tokenizer.eos_token_id
+    if tokenizer.eos_token_id == 50256 and language=="chinese":
+        tokenizer.eos_token_id = None
+
     encoded_prompt = tokenizer(prompt_lst, padding=True, add_special_tokens=False, return_tensors="pt")
     input_ids = encoded_prompt["input_ids"].to(model.device)
 
@@ -24,7 +29,7 @@ def fsd_decoding(model, tokenizer, prompt_lst, k, alpha, model_name_or_path,lang
                    model_path=model_name_or_path, language=language)
         ng_list.append(ng)
 
-    eos_token_id = eos_token_id if eos_token_id is not None else model.config.eos_token_id
+    eos_token_id = eos_token_id if eos_token_id is not None else tokenizer.eos_token_id
 
     batch_size, seqlen = input_ids.size()
     prefix_len = seqlen
@@ -72,13 +77,17 @@ def fsd_decoding(model, tokenizer, prompt_lst, k, alpha, model_name_or_path,lang
 
 @torch.no_grad()
 def fsd_vec_decoding(model, tokenizer, prompt_lst, k, alpha, model_name_or_path,language, max_length=256,n=2, beta=0.9, sw_coeff=1, min_length=256, eos_token_id = None, early_stop = False):
+    if tokenizer.pad_token_id == None:
+        tokenizer.pad_token_id = tokenizer.eos_token_id
+    if tokenizer.eos_token_id == 50256 and language=="chinese":
+        tokenizer.eos_token_id = None
 
     encoded_prompt = tokenizer(prompt_lst, padding=True, add_special_tokens=False, return_tensors="pt")
     input_ids = encoded_prompt["input_ids"].to(model.device)
     # build the n-gram model
     ng = HiddenSoftNGram(n, input_ids.device, len(tokenizer), beta, "max", sw_coeff, model_path=model_name_or_path, language=language)
 
-    eos_token_id = eos_token_id if eos_token_id is not None else model.config.eos_token_id
+    eos_token_id = eos_token_id if eos_token_id is not None else tokenizer.eos_token_id
     batch_size, seqlen = input_ids.size()
     prefix_len = seqlen
     model_kwargs = {}
