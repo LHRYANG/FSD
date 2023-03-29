@@ -29,7 +29,7 @@ if LANGUAGE == "chinese":
    #中文模型的设置
    model.config.eos_token_id = None
    tokenizer.pad_token = tokenizer.cls_token
-prompt_lst = ["腾讯是一家"]
+prompt_lst = ["内蒙古大草原上的"]
 outputs = fsd_vec_decoding(model, tokenizer, prompt_lst, k=3, alpha=0.4, model_name_or_path=model_name_or_path,
                                    language="chinese", max_length=128, min_length=128, n=2, beta=0.9, sw_coeff=1)
 generation_lst = tokenizer.batch_decode(outputs, clean_up_tokenization_spaces=True, skip_special_tokens=True)
@@ -38,7 +38,7 @@ for text in generation_lst:
 ```
 ```
 The output is:
-腾讯是一家互联网公司，它的产品和服务都是基于腾讯的技术。我们在这个领域有很多优势，比如说我们的客户群体，他们对于互联网的理解和认知，我们是非常强的。所以我们会去做一些事情，比如说我们在做一件事情之前，就要去了解这个行业的发展趋势，这样才能够更好地把握未来
+内蒙古大草原上的一个小村庄，这里有着天下第一草原的美誉。在那里，你可以看到大草原上最美丽的风景，也可以感受到草原上最纯净的自然风光。这里是中国最大的草原生态旅游区，也是世界上唯一一个被称为世界最长草原的地方。草原上的人们都会穿着各种颜色的衣服，他们
 ```
 To find more settings, you can refer to `eval.py`. 
 
