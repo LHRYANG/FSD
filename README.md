@@ -36,8 +36,9 @@ generation_lst = tokenizer.batch_decode(outputs, clean_up_tokenization_spaces=Tr
 for text in generation_lst:
    print(''.join(text.split(' ')))
 ```
-The outputs are:
->>> 腾讯是一家互联网公司，它的产品和服务都是基于腾讯的技术。我们在这个领域有很多优势，比如说我们的客户群体，他们对于互联网的理解和认知，我们是非常强的。所以我们会去做一些事情，比如说我们在做一件事情之前，就要去了解这个行业的发展趋势，这样才能够更好地把握未来
-
+```
+The output is:
+腾讯是一家互联网公司，它的产品和服务都是基于腾讯的技术。我们在这个领域有很多优势，比如说我们的客户群体，他们对于互联网的理解和认知，我们是非常强的。所以我们会去做一些事情，比如说我们在做一件事情之前，就要去了解这个行业的发展趋势，这样才能够更好地把握未来
+```
 To find more settings, you can refer to `eval.py`. 
 
