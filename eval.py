@@ -13,7 +13,7 @@ if __name__ == "__main__":
     model = AutoModelForCausalLM.from_pretrained(model_name_or_path)
     model.to(device)
 
-    tokenizer.padding_side = "left"
+
     #支持batch解码
     prompt_lst = ["这是一部非常好看的电影。讲的是","内蒙古大草原上"]
 
