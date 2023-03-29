@@ -24,14 +24,9 @@ tokenizer = AutoTokenizer.from_pretrained(model_name_or_path)
 model = AutoModelForCausalLM.from_pretrained(model_name_or_path)
 model.to(device)
 
-tokenizer.padding_side = "left"
-if LANGUAGE == "chinese":
-   #中文模型的设置
-   model.config.eos_token_id = None
-   tokenizer.pad_token = tokenizer.cls_token
 prompt_lst = ["内蒙古大草原上的"]
 outputs = fsd_vec_decoding(model, tokenizer, prompt_lst, k=3, alpha=0.4, model_name_or_path=model_name_or_path,
-                                   language="chinese", max_length=128, min_length=128, n=2, beta=0.9, sw_coeff=1)
+                                   language=LANGUAGE, max_length=128, min_length=128, n=2, beta=0.9, sw_coeff=1)
 generation_lst = tokenizer.batch_decode(outputs, clean_up_tokenization_spaces=True, skip_special_tokens=True)
 for text in generation_lst:
    print(''.join(text.split(' ')))
