@@ -29,12 +29,15 @@ if LANGUAGE == "chinese":
    #中文模型的设置
    model.config.eos_token_id = None
    tokenizer.pad_token = tokenizer.cls_token
-prompt_lst = ["这是一部非常好看的电影。讲的是","内蒙古大草原上"]
+prompt_lst = ["腾讯是一家"]
 outputs = fsd_vec_decoding(model, tokenizer, prompt_lst, k=3, alpha=0.4, model_name_or_path=model_name_or_path,
                                    language="chinese", max_length=128, min_length=128, n=2, beta=0.9, sw_coeff=1)
 generation_lst = tokenizer.batch_decode(outputs, clean_up_tokenization_spaces=True, skip_special_tokens=True)
 for text in generation_lst:
    print(''.join(text.split(' ')))
 ```
+The outputs are:
+>>> 腾讯是一家互联网公司，它的产品和服务都是基于腾讯的技术。我们在这个领域有很多优势，比如说我们的客户群体，他们对于互联网的理解和认知，我们是非常强的。所以我们会去做一些事情，比如说我们在做一件事情之前，就要去了解这个行业的发展趋势，这样才能够更好地把握未来
+
 To find more settings, you can refer to `eval.py`. 
 
