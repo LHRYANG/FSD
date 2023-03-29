@@ -25,8 +25,7 @@ if __name__ == "__main__":
 
     #支持batch解码
     prompt_lst = ["这是一部非常好看的电影。讲的是","内蒙古大草原上"]
-    encoded_prompt = tokenizer(prompt_lst, padding=True, add_special_tokens=False, return_tensors="pt")
-    input_ids = encoded_prompt["input_ids"].to(device)
+
 
     #fsd_vec decoding,向量版本的FSD解码（推荐使用）
     '''
@@ -40,21 +39,21 @@ if __name__ == "__main__":
     '''
     #chinese
     if LANGUAGE == "chinese":
-        outputs = fsd_vec_decoding(model, tokenizer, input_ids, k=3, alpha=0.4, model_name_or_path=model_name_or_path,
+        outputs = fsd_vec_decoding(model, tokenizer, prompt_lst, k=3, alpha=0.4, model_name_or_path=model_name_or_path,
                                    language="chinese", max_length=256, min_length=256, n=2, beta=0.9, sw_coeff=1)
     #english
     if LANGUAGE == "english":
-        outputs = fsd_vec_decoding(model, tokenizer, input_ids, k=3, alpha=0.45, model_name_or_path=model_name_or_path,
+        outputs = fsd_vec_decoding(model, tokenizer, prompt_lst, k=3, alpha=0.45, model_name_or_path=model_name_or_path,
                                    language="english", max_length=256, min_length=256, n=2, beta=0.9, sw_coeff=1)
 
 
 
     #fsd_decoding, 非向量版本的FSD解码
     #chinese
-    # outputs = fsd_decoding(model, tokenizer, input_ids, k=3, alpha=0.55, model_name_or_path=model_name_or_path,
+    # outputs = fsd_decoding(model, tokenizer, prompt_lst, k=3, alpha=0.55, model_name_or_path=model_name_or_path,
     #                        language='chinese', max_length=256,min_length=256, n=3, beta=0.9,sw_coeff=1)
     #english
-    # outputs = fsd_decoding(model, tokenizer, input_ids, k=3, alpha=0.65, model_name_or_path=model_name_or_path,
+    # outputs = fsd_decoding(model, tokenizer, prompt_lst, k=3, alpha=0.65, model_name_or_path=model_name_or_path,
     #                        language='english', max_length=256, min_length=256, n=3, beta=0.9, sw_coeff=1)
 
 
