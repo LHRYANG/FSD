@@ -6,17 +6,15 @@ from torch_scatter import scatter_max, scatter_mean
 
 
 # You can add punctuations or other kinds of words to realize more granular control
-PUNCTUATIONS = []
-STOP_WORDS = []
+# PUNCTUATIONS = []
+# STOP_WORDS = []
 # TOXIC = [...]
 
 class HiddenSoftNGram(torch.nn.Module):
-    def __init__(self, n, device,n_vocab,beta=0.8,choose="max",sw_coeff=1, model_path = "model512",language="chinese"):
+    def __init__(self, n, device,n_vocab,beta=0.8,choose="max",sw_coeff=1,PUNCTUATIONS=[],STOP_WORDS=[], model_path = "model512"):
         #func inter weighted_inter
         super().__init__()
-        if language == "english":
-            PUNCTUATIONS.append('ĊĊ')
-            PUNCTUATIONS.append('Ċ')
+
         self.n = n
         self.beta = beta
         self.n_vocab = n_vocab

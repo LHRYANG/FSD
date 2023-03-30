@@ -5,22 +5,17 @@ device = torch.device('cuda')
 from collections import Counter
 
 # You can add punctuations or other kinds of words to realize more granular control
-PUNCTUATIONS = []
-STOP_WORDS = []
+# PUNCTUATIONS = []
+# STOP_WORDS = []
 # TOXIC = [...]
 class NGram(torch.nn.Module):
-    def __init__(self,input_ids, n, vocab_size, beta=0.9,sw_coeff=1,model_path="model512",language="chinese"):
+    def __init__(self,input_ids, n, vocab_size, beta=0.9,sw_coeff=1,PUNCTUATIONS=[],STOP_WORDS=[], model_path="model512"):
         super().__init__()
         '''
         n: n-gram model
         beta: parameter about smoothed n-gram model
         st_coeff: coefficient of stopwords  
         '''
-
-        # these special symbols must be added, otherwise, the generations have a lot of grammar errors.
-        if language=="english":
-            PUNCTUATIONS.append('ĊĊ')
-            PUNCTUATIONS.append('Ċ')
 
         self.n = n
         self.tokens = input_ids

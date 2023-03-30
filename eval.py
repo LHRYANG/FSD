@@ -28,29 +28,29 @@ if __name__ == "__main__":
     k: top-k candidate words are selected 
     alpha: (1-alpha)p_lm -(alpha)*penalty
     model_name_or_path: same as the tokenizer 
-    language: if English, some special tokens should not be penalized, see fsd.py 
-    n: n-gram
-    beta: smoothed n-gram model
-    sw_coeff: give stopwords a small penalty (<1) or larger penalty(>1)
+    n: n-gram 
+    beta: smoothed n-gram model, default 0.9
+    sw_coeff: give stopwords a small penalty (<1) or larger penalty(>1), default 1
+    
     '''
     #chinese
     if LANGUAGE == "chinese":
         outputs = fsd_vec_decoding(model, tokenizer, prompt_lst, k=3, alpha=0.4, model_name_or_path=model_name_or_path,
-                                   language=LANGUAGE, max_length=128, min_length=128, n=2, beta=0.9, sw_coeff=1)
+                                   max_length=128,  n=2, beta=0.9, sw_coeff=1,punctuations=[],stop_words=[])
     #english
     if LANGUAGE == "english":
         outputs = fsd_vec_decoding(model, tokenizer, prompt_lst, k=3, alpha=0.45, model_name_or_path=model_name_or_path,
-                                   language=LANGUAGE, max_length=128, min_length=128, n=2, beta=0.9, sw_coeff=1)
+                                    max_length=128,  n=2, beta=0.9, sw_coeff=1,punctuations=[],stop_words=[])
 
 
 
     #fsd_decoding, 非向量版本的FSD解码
     #chinese
-    # outputs = fsd_decoding(model, tokenizer, prompt_lst, k=3, alpha=0.55, model_name_or_path=model_name_or_path,
-    #                        language=LANGUAGE, max_length=256,min_length=256, n=3, beta=0.9,sw_coeff=1)
+    outputs = fsd_decoding(model, tokenizer, prompt_lst, k=3, alpha=0.55, model_name_or_path=model_name_or_path,
+                            max_length=128, n=3, beta=0.9,sw_coeff=1,punctuations=[],stop_words=[])
     #english
-    # outputs = fsd_decoding(model, tokenizer, prompt_lst, k=3, alpha=0.65, model_name_or_path=model_name_or_path,
-    #                        language=LANGUAGE, max_length=256, min_length=256, n=3, beta=0.9, sw_coeff=1)
+    outputs = fsd_decoding(model, tokenizer, prompt_lst, k=3, alpha=0.65, model_name_or_path=model_name_or_path,
+                            max_length=128,  n=3, beta=0.9, sw_coeff=1,punctuations=[],stop_words=[])
 
 
     generation_lst = tokenizer.batch_decode(outputs, clean_up_tokenization_spaces=True, skip_special_tokens=True)
