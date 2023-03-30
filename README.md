@@ -11,7 +11,6 @@ pip install torch_scatter
 In this example, I will show you how to use our decoding method.
 
 ```python
-# Change the name in the huggingface models
 import torch
 from transformers import AutoTokenizer, AutoModelForCausalLM
 from utils import fsd_decoding, fsd_vec_decoding
@@ -79,5 +78,3 @@ The output is:
 
 Before you came here, we have a lot of things to do. We need to get the city ready for the Olympics."  The mayor said he was "very happy" with the progress made in recent months and that "we're going to be able to have our first Olympic Games in 20 years."  He also noted that the city has been working on its bid since 2008, when it received $1.5 million from the federal government.  "We've had some very good meetings with the IOC," he said. "I think we're ready to go now."  Mayor Rob Ford, who is running
 ```
-To find more settings, you can refer to `eval.py`. 
-
