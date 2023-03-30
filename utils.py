@@ -12,11 +12,7 @@ def fsd_decoding(model, tokenizer, prompt_lst, k, alpha, model_name_or_path,lang
            alpha: regulates importance of model confidence and degeneration penalty
            end_of_sequence_token_id: the token id that denotes the end of generation
         '''
-    tokenizer.padding_side = "left"
-    if tokenizer.pad_token_id == None:
-        tokenizer.pad_token_id = tokenizer.eos_token_id
-    if tokenizer.eos_token_id == 50256 and language=="chinese":
-        tokenizer.eos_token_id = None
+
 
     encoded_prompt = tokenizer(prompt_lst, padding=True, add_special_tokens=False, return_tensors="pt")
     input_ids = encoded_prompt["input_ids"].to(model.device)
@@ -78,11 +74,6 @@ def fsd_decoding(model, tokenizer, prompt_lst, k, alpha, model_name_or_path,lang
 
 @torch.no_grad()
 def fsd_vec_decoding(model, tokenizer, prompt_lst, k, alpha, model_name_or_path,language, max_length=256,n=2, beta=0.9, sw_coeff=1, min_length=256, eos_token_id = None, early_stop = False):
-    tokenizer.padding_side = "left"
-    if tokenizer.pad_token_id == None:
-        tokenizer.pad_token_id = tokenizer.eos_token_id
-    if tokenizer.eos_token_id == 50256 and language=="chinese":
-        tokenizer.eos_token_id = None
 
     encoded_prompt = tokenizer(prompt_lst, padding=True, add_special_tokens=False, return_tensors="pt")
     input_ids = encoded_prompt["input_ids"].to(model.device)
