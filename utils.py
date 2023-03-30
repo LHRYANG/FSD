@@ -5,14 +5,6 @@ from ngram_model.fsd_vec import HiddenSoftNGram
 
 @torch.no_grad()
 def fsd_decoding(model, tokenizer, prompt_lst, k, alpha, model_name_or_path,max_length=256,n=2, beta=0.9, sw_coeff=1, punctuations=[],stop_words=[],eos_token_id = None, early_stop = False):
-    '''
-           input_ids: prefix input; B x prefix_len (batch_size x seq_len)
-           decoding_len: how many tokens to generate
-           beam_width: size of candidate pool during decoding
-           alpha: regulates importance of model confidence and degeneration penalty
-           end_of_sequence_token_id: the token id that denotes the end of generation
-        '''
-
 
     encoded_prompt = tokenizer(prompt_lst, padding=True, add_special_tokens=False, return_tensors="pt")
     input_ids = encoded_prompt["input_ids"].to(model.device)
