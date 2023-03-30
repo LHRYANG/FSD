@@ -7,7 +7,7 @@ Except transformers, pytorch, you also need to install torch_scatter by running
 ```bash
 pip install torch_scatter
 ```
-#### 2. generate given prefix
+#### 2. Generate continuation given prefix
 In this example, I will show you how to use our decoding method.
 
 ```python
@@ -78,3 +78,29 @@ The output is:
 
 Before you came here, we have a lot of things to do. We need to get the city ready for the Olympics."  The mayor said he was "very happy" with the progress made in recent months and that "we're going to be able to have our first Olympic Games in 20 years."  He also noted that the city has been working on its bid since 2008, when it received $1.5 million from the federal government.  "We've had some very good meetings with the IOC," he said. "I think we're ready to go now."  Mayor Rob Ford, who is running
 ```
+
+#### 3. Explanations and Settings of Hyperparameters
+**explanations**
+
+- k: top-k candidate words are selected,default 3 
+- alpha: (1-alpha)p_lm -(alpha)*penalty
+- model_name_or_path: same as the tokenizer 
+- n: n-gram
+- beta: smoothed n-gram model, default 0.9
+- sw_coeff: give stopwords a small penalty (<1) or larger penalty(>1),default 1
+- max_length: decoding max_length-prompt_length steps
+- punctuations=[] and stop_words=[]: You can add punctuations or other kinds of words to realize more granular control, If you use GPT-2, you at least need to add two special tokens ('Ċ' and 'ĊĊ') to punctuations, otherwise, some grammar errors may occur.
+
+**recommended settings (Chinese)**
+| Hyperparameter | fsd_decoding | fsd_vec_decoding |
+|----------------|----------|-----------|
+| alpha          | 0.55     | 0.4       |
+| n              | 3        | 2         |
+
+**recommended settings (English)**
+| Hyperparameter | fsd_decoding | fsd_vec_decoding |
+|----------------|----------|-----------|
+| alpha          | 0.65     | 0.45      |
+| n              | 3        | 2         |
+
+If you use gpt2 (English), you also need to add 'Ċ' and 'ĊĊ' to puncyuations to avoid grammars errors.
