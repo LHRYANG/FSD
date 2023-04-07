@@ -1,30 +1,18 @@
 import torch
-from transformers import AutoTokenizer
 import time
-device = torch.device('cuda')
 from collections import Counter
 
-# You can add punctuations or other kinds of words to realize more granular control
-# PUNCTUATIONS = []
-# STOP_WORDS = []
-# TOXIC = [...]
-class NGram(torch.nn.Module):
-    def __init__(self,input_ids, n, vocab_size, beta=0.9,sw_coeff=1,PUNCTUATIONS=[],STOP_WORDS=[], model_path="model512"):
-        super().__init__()
-        '''
-        n: n-gram model
-        beta: parameter about smoothed n-gram model
-        st_coeff: coefficient of stopwords  
-        '''
 
+class NGram(torch.nn.Module):
+    def __init__(self,input_ids, n, tokenizer, beta=0.9, sw_coeff=0., stop_words_ids=[]):
+        super().__init__()
+        assert sw_coeff >= 0.
         self.n = n
         self.tokens = input_ids
-        self.vocab_size = vocab_size
+        self.vocab_size = len(tokenizer)
         self.beta = beta
         self.sw_coeff = sw_coeff
-        tok = AutoTokenizer.from_pretrained(model_path)
-        self.sw_ids = list(set(tok.convert_tokens_to_ids(STOP_WORDS)))
-        self.bd_ids = list(set(tok.convert_tokens_to_ids(PUNCTUATIONS)))
+        self.stop_words_ids = stop_words_ids
 
         # initialise the ngram model
         self.generated_ngrams = [{} for _ in range(n)]
@@ -52,7 +40,7 @@ class NGram(torch.nn.Module):
                 k_lst = list(ngram_count.keys())
                 v_lst = list(ngram_count.values())
 
-                if cand not in k_lst or cand in self.bd_ids:  #or (cand not in self.cw_ids):
+                if cand not in k_lst or cand in self.stop_words_ids:
                     continue
 
                 idx = k_lst.index(cand)
@@ -64,10 +52,8 @@ class NGram(torch.nn.Module):
                     score += remaining * self.beta * (cur_score)
                 remaining = remaining - remaining*self.beta
 
-            if cand in self.sw_ids:
+            if cand in self.stop_words_ids:
                 penalty[cand] = self.sw_coeff*score
-            elif cand in self.bd_ids:
-                penalty[cand] = 0
             else:
                 penalty[cand] = score
         return penalty
@@ -78,7 +64,7 @@ class NGram(torch.nn.Module):
                 key = ()
             else:
                 key = tuple(self.tokens[-i:])
-            #print(key)
+
             self.generated_ngrams[i][key] = self.generated_ngrams[i].get(key, []) + [new_token]
         self.tokens = self.tokens + [new_token]
 

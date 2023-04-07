@@ -4,8 +4,16 @@ from ngram_model.fsd import NGram
 from ngram_model.fsd_vec import HiddenSoftNGram
 
 @torch.no_grad()
-def fsd_decoding(model, tokenizer, prompt_lst, k, alpha, model_name_or_path,max_length=256,n=2, beta=0.9, sw_coeff=1, punctuations=[],stop_words=[],eos_token_id = None, early_stop = False):
-
+def fsd_decoding(model, tokenizer, prompt_lst, k, alpha, max_length, n=3, beta=0.9, sw_coeff=0., stop_words_ids=[], eos_token_id = None, early_stop = False):
+    """
+    - k: top-k candidate words are selected, default 3 
+    - alpha: (1-alpha)p_lm -(alpha)*penalty
+    - max_length: decoding max_length-prompt_length steps
+    - n: the order of n-gram models
+    - beta: the smoothness of n-gram models, default 0.9
+    - sw_coeff: give stopwords a small penalty (<1) or larger penalty(>1), default 0.
+    - stop_words=[]: the list of stopwords. If you use GPT-2, you at least need to add two special tokens ('Ċ' and 'ĊĊ') to avoid grammars errors.
+    """
     encoded_prompt = tokenizer(prompt_lst, padding=True, add_special_tokens=False, return_tensors="pt")
     input_ids = encoded_prompt["input_ids"].to(model.device)
 
@@ -14,8 +22,7 @@ def fsd_decoding(model, tokenizer, prompt_lst, k, alpha, model_name_or_path,max_
     prompt_len = torch.sum(attention_mask, dim=1)
     ng_list = []
     for i, inputs in enumerate(input_ids):
-        ng = NGram(inputs.tolist()[input_ids.shape[1] - prompt_len[i]:], n, len(tokenizer), beta, sw_coeff, PUNCTUATIONS=punctuations,STOP_WORDS=stop_words,
-                   model_path=model_name_or_path)
+        ng = NGram(inputs.tolist()[input_ids.shape[1] - prompt_len[i]:], n, tokenizer, beta, sw_coeff, stop_words_ids)
         ng_list.append(ng)
 
     eos_token_id = eos_token_id if eos_token_id is not None else tokenizer.eos_token_id
@@ -63,12 +70,19 @@ def fsd_decoding(model, tokenizer, prompt_lst, k, alpha, model_name_or_path,max_
 
 
 @torch.no_grad()
-def fsd_vec_decoding(model, tokenizer, prompt_lst, k, alpha, model_name_or_path,max_length=256,n=2, beta=0.9, sw_coeff=1, punctuations=[],stop_words=[], eos_token_id = None, early_stop = False):
-
+def fsd_vec_decoding(model, tokenizer, prompt_lst, k, alpha, max_length, n=2, sw_coeff=0., stop_words_ids=[], eos_token_id = None, early_stop = False):
+    """
+    - k: top-k candidate words are selected, default 3 
+    - alpha: (1-alpha)p_lm -(alpha)*penalty
+    - max_length: decoding max_length-prompt_length steps
+    - n: the order of n-gram models
+    - sw_coeff: give stopwords a small penalty (<1) or larger penalty(>1), default 0.
+    - stop_words=[]: the list of stopwords. If you use GPT-2, you at least need to add two special tokens ('Ċ' and 'ĊĊ') to avoid grammars errors.
+    """
     encoded_prompt = tokenizer(prompt_lst, padding=True, add_special_tokens=False, return_tensors="pt")
     input_ids = encoded_prompt["input_ids"].to(model.device)
     # build the n-gram model
-    ng = HiddenSoftNGram(n, input_ids.device, len(tokenizer), beta, "max", sw_coeff, PUNCTUATIONS=punctuations,STOP_WORDS=stop_words, model_path=model_name_or_path)
+    ng = HiddenSoftNGram(n, input_ids.device, tokenizer, sw_coeff, stop_words_ids)
 
     eos_token_id = eos_token_id if eos_token_id is not None else tokenizer.eos_token_id
     batch_size, seqlen = input_ids.size()

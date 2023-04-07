@@ -1,35 +1,21 @@
 import torch
 from torch.nn.functional import normalize
 from collections import Counter
-from transformers import AutoTokenizer
 from torch_scatter import scatter_max, scatter_mean
 
-
-# You can add punctuations or other kinds of words to realize more granular control
-# PUNCTUATIONS = []
-# STOP_WORDS = []
-# TOXIC = [...]
-
 class HiddenSoftNGram(torch.nn.Module):
-    def __init__(self, n, device,n_vocab,beta=0.8,choose="max",sw_coeff=1,PUNCTUATIONS=[],STOP_WORDS=[], model_path = "model512"):
+    def __init__(self, n, device, tokenizer, sw_coeff=0., stop_words_ids=[], choose="max"):
         #func inter weighted_inter
         super().__init__()
-
+        assert sw_coeff >= 0.
         self.n = n
-        self.beta = beta
-        self.n_vocab = n_vocab
+        self.n_vocab = len(tokenizer)
         self.device = device
         self.previous_hidden_states =None
         self.choose = choose
-        tok = AutoTokenizer.from_pretrained(model_path)
-        self.sw_ids = list(set(tok.convert_tokens_to_ids(STOP_WORDS)))
-        self.bd_ids = list(set(tok.convert_tokens_to_ids(PUNCTUATIONS)))
         self.sw_coeff = sw_coeff
-        self.bd_weight = torch.ones(self.n_vocab, device=self.device, dtype=torch.float)
-        for sid in self.bd_ids:
-            self.bd_weight[sid] = 0
         self.sw_weight = torch.ones(self.n_vocab, device=self.device, dtype=torch.float)
-        for sid in self.sw_ids:
+        for sid in stop_words_ids:
             self.sw_weight[sid] = self.sw_coeff
 
     def forward(self,prefix, hidden_states):
@@ -66,7 +52,7 @@ class HiddenSoftNGram(torch.nn.Module):
         penalty = torch.clamp(penalty, min=0, max=1)
         self.previous_hidden_states = torch.cat((self.previous_hidden_states,last_hidden_states),dim=1)
 
-        return penalty*self.bd_weight*self.sw_weight
+        return penalty*self.sw_weight
 
 
 

@@ -17,57 +17,45 @@ from utils import fsd_decoding, fsd_vec_decoding
 
 # Chinese
 model_name_or_path = "uer/gpt2-chinese-cluecorpussmall"
-device = torch.device("cuda")
 tokenizer = AutoTokenizer.from_pretrained(model_name_or_path)
 model = AutoModelForCausalLM.from_pretrained(model_name_or_path)
+device = torch.device("cuda")
 model.to(device)
 
- ### settings of tokenizer, if you want to decode a batch, you need to set the pad_token_id
+### settings of tokenizer, if you want to decode a batch, you need to set the pad_token_id
 tokenizer.padding_side = "left"
 if tokenizer.pad_token_id == None:
-    # for English gpt2, the pad_token_id is not set, we use eos_token as pad_token
     tokenizer.pad_token_id = tokenizer.eos_token_id
 
 prompt_lst = ["内蒙古大草原上的"]
 
-'''
-    k: top-k candidate words are selected,default 3 
-    alpha: (1-alpha)p_lm -(alpha)*penalty
-    model_name_or_path: same as the tokenizer 
-    n: n-gram
-    beta: smoothed n-gram model, default 0.9
-    sw_coeff: give stopwords a small penalty (<1) or larger penalty(>1),default 1
-    max_length: decoding max_length-prompt_length steps
-    punctuations=[] and stop_words=[]: You can add punctuations or other kinds of words to realize more granular control, If you use GPT-2, you at least need to
-    add two special tokens ('Ċ' and 'ĊĊ') to punctuations, otherwise, some grammar errors may occur.
-'''
-
-outputs = fsd_vec_decoding(model, tokenizer, prompt_lst, k=3, alpha=0.4, model_name_or_path=model_name_or_path,
-                                    max_length=128, n=2, beta=0.9, sw_coeff=1,punctuations=[],stop_words=[])
-generation_lst = tokenizer.batch_decode(outputs, clean_up_tokenization_spaces=True, skip_special_tokens=True)
+outputs = fsd_vec_decoding(model, tokenizer, prompt_lst,
+                           k=3, alpha=0.4, max_length=128,
+                           n=2, beta=0.9, sw_coeff=0., stop_words_ids=[])
+generation_lst = tokenizer.batch_decode(outputs)
 for text in generation_lst:
-   print(''.join(text.split(' ')))
+    print(text)
 
 # English 
 model_name_or_path = "gpt2-large"
-device = torch.device("cuda")
 tokenizer = AutoTokenizer.from_pretrained(model_name_or_path)
 model = AutoModelForCausalLM.from_pretrained(model_name_or_path)
+device = torch.device("cuda")
 model.to(device)
 
  ### settings of tokenizer, if you want to decode a batch, you need to set the pad_token_id
 tokenizer.padding_side = "left"
 if tokenizer.pad_token_id == None:
-    # for English gpt2, the pad_token_id is not set, we use eos_token as pad_token
     tokenizer.pad_token_id = tokenizer.eos_token_id
 
 prompt_lst = ["Before you came here, we have"]
-outputs = fsd_vec_decoding(model, tokenizer, prompt_lst, k=3, alpha=0.45, model_name_or_path=model_name_or_path,
-                                    max_length=128, n=2, beta=0.9, sw_coeff=1,punctuations=['Ċ','ĊĊ'],stop_words=[])
+outputs = fsd_vec_decoding(model, tokenizer, prompt_lst,
+                           k=3, alpha=0.45, max_length=128,
+                           n=2, beta=0.9, sw_coeff=0., stop_words_ids=tokenizer.convert_tokens_to_ids(['Ċ','ĊĊ']))
 
-generation_lst = tokenizer.batch_decode(outputs, clean_up_tokenization_spaces=True, skip_special_tokens=True)
+generation_lst = tokenizer.batch_decode(outputs)
 for text in generation_lst:
-   print(text.replace('\n',' '))
+    print(text)
 
 
 ```
@@ -82,14 +70,13 @@ Before you came here, we have a lot of things to do. We need to get the city rea
 #### 3. Explanations and Settings of Hyperparameters
 **explanations**
 
-- k: top-k candidate words are selected,default 3 
+- k: top-k candidate words are selected, default 3 
 - alpha: (1-alpha)p_lm -(alpha)*penalty
-- model_name_or_path: same as the tokenizer 
-- n: n-gram
-- beta: smoothed n-gram model, default 0.9
-- sw_coeff: give stopwords a small penalty (<1) or larger penalty(>1),default 1
 - max_length: decoding max_length-prompt_length steps
-- punctuations=[] and stop_words=[]: You can add punctuations or other kinds of words to realize more granular control, If you use GPT-2, you at least need to add two special tokens ('Ċ' and 'ĊĊ') to punctuations, otherwise, some grammar errors may occur.
+- n: the order of n-gram models
+- beta: the smoothness of n-gram models, default 0.9
+- sw_coeff: give stopwords a small penalty (<1) or larger penalty(>1), default 0.
+- stop_words=[]: the list of stopwords. If you use GPT-2, you at least need to add two special tokens ('Ċ' and 'ĊĊ') to avoid grammars errors.
 
 **recommended settings (Chinese)**
 | Hyperparameter | fsd_decoding | fsd_vec_decoding |
@@ -102,5 +89,3 @@ Before you came here, we have a lot of things to do. We need to get the city rea
 |----------------|----------|-----------|
 | alpha          | 0.65     | 0.45      |
 | n              | 3        | 2         |
-
-If you use gpt2 (English), you also need to add 'Ċ' and 'ĊĊ' to puncyuations to avoid grammars errors.
