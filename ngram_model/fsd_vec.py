@@ -30,7 +30,7 @@ class HiddenSoftNGram(torch.nn.Module):
             self.bd_weight[sid] = 0
         self.sw_weight = torch.ones(self.n_vocab, device=self.device, dtype=torch.float)
         for sid in self.sw_ids:
-            self.sw_weight[sid] = self.xishu
+            self.sw_weight[sid] = self.sw_coeff
 
     def forward(self,prefix, hidden_states):
         bsz = prefix.shape[0]
