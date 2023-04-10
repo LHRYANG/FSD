@@ -31,7 +31,7 @@ prompt_lst = ["内蒙古大草原上的"]
 
 outputs = fsd_vec_decoding(model, tokenizer, prompt_lst,
                            k=3, alpha=0.4, max_length=128,
-                           n=2, beta=0.9, sw_coeff=0., stop_words_ids=[])
+                           n=2, sw_coeff=0., stop_words_ids=[])
 generation_lst = tokenizer.batch_decode(outputs)
 for text in generation_lst:
     print(text)
@@ -51,7 +51,7 @@ if tokenizer.pad_token_id == None:
 prompt_lst = ["Before you came here, we have"]
 outputs = fsd_vec_decoding(model, tokenizer, prompt_lst,
                            k=3, alpha=0.45, max_length=128,
-                           n=2, beta=0.9, sw_coeff=0., stop_words_ids=tokenizer.convert_tokens_to_ids(['Ċ','ĊĊ']))
+                           n=2, sw_coeff=0., stop_words_ids=tokenizer.convert_tokens_to_ids(['Ċ','ĊĊ']))
 
 generation_lst = tokenizer.batch_decode(outputs)
 for text in generation_lst:
@@ -74,7 +74,7 @@ Before you came here, we have a lot of things to do. We need to get the city rea
 - alpha: (1-alpha)p_lm -(alpha)*penalty
 - max_length: decoding max_length-prompt_length steps
 - n: the order of n-gram models
-- beta: the smoothness of n-gram models, default 0.9
+- beta: the smoothness of n-gram models, default 0.9 (only for discrete version)
 - sw_coeff: give stopwords a small penalty (<1) or larger penalty(>1), default 0.
 - stop_words=[]: the list of stopwords. If you use GPT-2, you at least need to add two special tokens ('Ċ' and 'ĊĊ') to avoid grammars errors.
 
