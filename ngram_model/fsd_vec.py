@@ -31,7 +31,7 @@ class HiddenSoftNGram(torch.nn.Module):
         else:
             last_hidden_states = hidden_states[-1]
             if self.n != 2:
-                new_last_hidden_states = torch.cat((self.previous_hidden_states[:,-self.n+2:],hidden_states[-1]),dim=-1)
+                new_last_hidden_states = torch.cat((self.previous_hidden_states[:,-self.n+2:],hidden_states[-1]),dim=1).view(bsz,1,-1)
             else:
                 new_last_hidden_states=hidden_states[-1]
 
