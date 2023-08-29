@@ -74,7 +74,7 @@ Before you came here, we have a lot of things to do. We need to get the city rea
 - max_length: decoding max_length-prompt_length steps
 - n: the order of n-gram models
 - beta: the smoothness of n-gram models, default 0.9 (only for discrete version)
-- sw_coeff: give stopwords a small penalty (<1) or larger penalty(>1), default 0.
+- sw_coeff: give stopwords a small penalty (<1) or larger penalty(>1), default 1.
 - stop_words=[]: the list of stopwords. If you use GPT-2, you at least need to add two special tokens ('Ċ' and 'ĊĊ') to avoid grammars errors.
 
 **recommended settings (Chinese)**
