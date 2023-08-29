@@ -1,7 +1,6 @@
 # FSD
 A Frustratingly Simple Decoding Method for Neural Text Generation
 
-**[Contact]** If you have any questions, feel free to contact me via (hryang@se.cuhk.edu.hk).
 #### 1. Install requirement
 Except transformers, pytorch, you also need to install torch_scatter by running
 ```bash
