@@ -3,13 +3,13 @@ import time
 from collections import Counter
 
 
-class NGram(torch.nn.Module):
-    def __init__(self,input_ids, n, tokenizer, beta=0.9, sw_coeff=0., stop_words_ids=[]):
+class NGram:
+    def __init__(self,input_ids, n, vocab_size, beta=0.9, sw_coeff=0., stop_words_ids=[]):
         super().__init__()
         assert sw_coeff >= 0.
         self.n = n
         self.tokens = input_ids
-        self.vocab_size = len(tokenizer)
+        self.vocab_size = vocab_size
         self.beta = beta
         self.sw_coeff = sw_coeff
         self.stop_words_ids = stop_words_ids
@@ -22,11 +22,11 @@ class NGram(torch.nn.Module):
                 prev_ngram_tuple = tuple(ngram[:-1])
                 generated_ngram[prev_ngram_tuple] = generated_ngram.get(prev_ngram_tuple, []) + [ngram[-1]]
 
-    def forward(self, input_ids, topk_id, topk_prob):
+    def penalize(self, query, candidates):
         penalty = torch.zeros(self.vocab_size)
-        if len(input_ids)<self.n-1:
+        if len(query)<self.n-1:
             return penalty
-        for eee,cand in enumerate(topk_id):
+        for cand in candidates:
             remaining = 1
             score = 0
 
@@ -34,32 +34,31 @@ class NGram(torch.nn.Module):
                 if i == 0:
                     key = ()
                 else:
-                    key = tuple(input_ids[-i:])
+                    key = tuple(query[-i:])
                 ngram_cands = self.generated_ngrams[i].get(key, [])
                 ngram_count = Counter(ngram_cands)
-                k_lst = list(ngram_count.keys())
-                v_lst = list(ngram_count.values())
+                
 
-                if cand not in k_lst or cand in self.stop_words_ids:
+                if cand not in ngram_count:
                     continue
 
-                idx = k_lst.index(cand)
+                total = sum([ngram_count[k] for k in ngram_count])
                 if i == 0:
-                    cur_score = v_lst[idx]/sum(v_lst)
+                    cur_score = ngram_count[cand] / total
                     score += remaining * cur_score
                 else:
-                    cur_score = v_lst[idx] / (sum(v_lst)+1)
-                    score += remaining * self.beta * (cur_score)
-                remaining = remaining - remaining*self.beta
+                    cur_score = ngram_count[cand] / (total + 1)
+                    score += remaining * self.beta * cur_score
+                remaining = remaining - remaining * self.beta
 
             if cand in self.stop_words_ids:
-                penalty[cand] = self.sw_coeff*score
+                penalty[cand] = self.sw_coeff * score
             else:
                 penalty[cand] = score
         return penalty
 
     def update(self, new_token):
-        for i in range(self.n):
+        for i in range(min(self.n, len(self.tokens)+1)):
             if i == 0:
                 key = ()
             else:
@@ -67,27 +66,3 @@ class NGram(torch.nn.Module):
 
             self.generated_ngrams[i][key] = self.generated_ngrams[i].get(key, []) + [new_token]
         self.tokens = self.tokens + [new_token]
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
