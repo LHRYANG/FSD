@@ -1,4 +1,4 @@
-# FSD
+# Implementation of FSD
 A Frustratingly Simple Decoding Method for Neural Text Generation
 
 #### 1. Install requirement
